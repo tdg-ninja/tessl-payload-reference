@@ -1,0 +1,37 @@
+name: Tessl Verify
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: git fetch --no-tags origin main
+
+      - name: Install Tessl CLI
+        uses: tesslio/setup-tessl@v2
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
+
+      - name: Install Tessl dependencies
+        run: tessl install
+
+      - name: Dry-run scope check
+        run: tessl change verify --base origin/main --dry-run --show-files
+
+      - name: Verify changed surface
+        run: |
+          tessl change verify --base origin/main \
+            --strict-coverage --github --max-calls 200

@@ -1,0 +1,14 @@
+{
+  "name": "Server components import client components from exports bundle",
+  "instruction": "React Server Components (.server.tsx files, or files without 'use client' in packages/ui/ or packages/next/) must import client components from the package's exports/client/index.js bundle, not via relative path. Relative imports do not respect 'use client' boundaries in production builds.",
+  "relevant_when": "TypeScript or TSX file under packages/ui/ or packages/next/ that does NOT have a 'use client' directive and imports a component that is marked as a client component.",
+  "context": "In production builds, relative imports between server and client components do not respect the 'use client' boundary. The client component code gets evaluated in server context, causing runtime errors. The exports/client/index.js bundle is the designated client boundary.",
+  "scope": "file",
+  "scope_reason": "Each file's import statements and directives can be inspected independently.",
+  "checklist": [
+    {
+      "name": "client-imports-from-bundle",
+      "rule": "If this file is a server component (no 'use client' directive) and it imports components that exist in the package's exports/client/index.js, those imports come from the exports/client/index.js path, not a relative path to the component's source file."
+    }
+  ]
+}

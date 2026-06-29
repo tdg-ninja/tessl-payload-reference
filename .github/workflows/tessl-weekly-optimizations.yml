@@ -1,0 +1,32 @@
+name: Weekly Optimization Scan
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Monday 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  find-optimizations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Tessl CLI
+        uses: tesslio/setup-tessl@v2
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
+
+      - name: Install Tessl dependencies
+        run: tessl install
+
+      - name: Scan last week's PRs for optimization opportunities
+        run: |
+          tessl agent -p "Run /find-optimizations for the last 7 days. For each finding, file a GitHub issue with the label 'harness-improvement'. Include the evidence PRs, improvement type, and suggested approach in the issue body." --no-session
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

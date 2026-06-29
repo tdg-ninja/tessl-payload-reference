@@ -1,0 +1,14 @@
+{
+  "name": "Functions use object parameters",
+  "instruction": "Exported functions with two or more parameters must use a single destructured object parameter instead of positional parameters. This is Payload's backwards-compatibility policy — adding a new option to an object parameter is non-breaking, but adding a positional parameter breaks callers.",
+  "relevant_when": "TypeScript or TSX file under packages/ that exports a function with two or more parameters (not a test file, not a React component's props which are already an object, not a callback or arrow function passed inline).",
+  "context": "Payload enforces object parameters for all exported function signatures to maintain backwards compatibility. Positional parameters break the contract silently when signatures change across versions.",
+  "scope": "file",
+  "scope_reason": "Each file's exported function signatures can be inspected independently.",
+  "checklist": [
+    {
+      "name": "object-params-on-exports",
+      "rule": "Every exported function (export function, export const fn =, export default function) that accepts two or more parameters uses a single destructured object parameter ({ param1, param2 }: { param1: Type1, param2: Type2 }) instead of positional parameters (param1: Type1, param2: Type2). Single-parameter functions, React components receiving props, and internal non-exported helpers are exempt."
+    }
+  ]
+}

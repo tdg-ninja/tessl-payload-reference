@@ -1,0 +1,18 @@
+{
+  "name": "Server operations use access control",
+  "instruction": "Server functions, views, and endpoints that call payload operations (payload.find, payload.create, payload.update, payload.delete, payload.findByID, payload.count) must pass overrideAccess: false and user to each call.",
+  "relevant_when": "TypeScript or TSX file under packages/next/ or packages/ui/ or packages/payload/ that contains a payload.find, payload.create, payload.update, payload.delete, payload.findByID, or payload.count call inside a server function, view, endpoint, or route handler (not inside a test file, migration, or seed script).",
+  "context": "Without overrideAccess: false, payload operations run with full admin access, bypassing all access control. This is a security vulnerability when the operation runs on behalf of a user request.",
+  "scope": "file",
+  "scope_reason": "A single file contains the payload operation call and its arguments.",
+  "checklist": [
+    {
+      "name": "override-access-false",
+      "rule": "Every payload operation call (payload.find, payload.create, payload.update, payload.delete, payload.findByID, payload.count) in a server function, view, or endpoint passes overrideAccess: false."
+    },
+    {
+      "name": "user-passed",
+      "rule": "Every payload operation call that sets overrideAccess: false also passes a user property."
+    }
+  ]
+}

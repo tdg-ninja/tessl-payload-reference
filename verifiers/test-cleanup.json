@@ -1,0 +1,18 @@
+{
+  "name": "Tests clean up created records",
+  "instruction": "Test files that create database records via payload.create must clean them up before the test exits, either inline or via afterEach/afterAll hooks.",
+  "relevant_when": "TypeScript file under test/ with .spec.ts or .test.ts extension that calls payload.create to insert database records.",
+  "context": "Tests that leak database records cause non-deterministic failures in other tests. Payload's test guidelines require all created records to be deleted before the test completes.",
+  "scope": "file",
+  "scope_reason": "Each test file contains its own setup, teardown, and assertions.",
+  "checklist": [
+    {
+      "name": "cleanup-mechanism-exists",
+      "rule": "The test file has a cleanup mechanism for records created via payload.create: either an afterEach/afterAll hook that deletes created records, or inline cleanup (payload.delete) after each test's assertions. Tracking IDs in a shared array with afterEach cleanup is the preferred pattern."
+    },
+    {
+      "name": "no-orphaned-creates",
+      "rule": "Every payload.create call in a test body has a corresponding delete — either tracked in a shared ID array cleaned by afterEach, or deleted inline before the test function returns."
+    }
+  ]
+}

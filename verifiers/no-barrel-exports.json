@@ -1,0 +1,14 @@
+{
+  "name": "No barrel exports in packages",
+  "instruction": "Package source files must use explicit named exports, not barrel exports (export * from). Barrel exports break tree-shaking and can silently break RSC/client boundaries in production builds.",
+  "relevant_when": "TypeScript or TSX file under packages/ that contains an export statement re-exporting from another module (not a test file, not a type-only re-export).",
+  "context": "Barrel exports (export * from) cause production bundling issues where client code gets evaluated in server context, breaking React Server Components. They also defeat tree-shaking, increasing bundle size.",
+  "scope": "file",
+  "scope_reason": "Each file's export statements can be inspected independently.",
+  "checklist": [
+    {
+      "name": "no-barrel-reexport",
+      "rule": "The file does not use 'export * from' syntax to re-export from another module. Explicit named exports like 'export { Foo } from' or 'export type * from' (type-only) are acceptable."
+    }
+  ]
+}

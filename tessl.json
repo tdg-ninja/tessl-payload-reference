@@ -1,0 +1,49 @@
+{
+  "name": "payload-reference",
+  "mode": "vendored",
+  "dependencies": {},
+  "verify": {
+    "groups": {
+      "security": {
+        "path": "verifiers/access-control.json",
+        "level": "error",
+        "include": [
+          "packages/next/src/**/*.ts",
+          "packages/next/src/**/*.tsx",
+          "packages/ui/src/**/*.ts",
+          "packages/ui/src/**/*.tsx",
+          "packages/payload/src/**/*.ts"
+        ],
+        "exclude": [
+          "**/*.test.ts",
+          "**/*.spec.ts",
+          "**/test/**",
+          "**/migrations/**",
+          "**/seed/**"
+        ]
+      },
+      "conventions": {
+        "path": "verifiers/!(access-control|test-cleanup).json",
+        "level": "error",
+        "include": [
+          "packages/*/src/**/*.ts",
+          "packages/*/src/**/*.tsx"
+        ],
+        "exclude": [
+          "**/*.test.ts",
+          "**/*.spec.ts",
+          "**/test/**",
+          "**/dist/**"
+        ]
+      },
+      "testing": {
+        "path": "verifiers/test-cleanup.json",
+        "level": "error",
+        "include": [
+          "test/**/*.spec.ts",
+          "test/**/*.test.ts"
+        ]
+      }
+    }
+  }
+}

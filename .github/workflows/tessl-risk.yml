@@ -1,0 +1,111 @@
+name: Tessl Risk Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+concurrency:
+  group: tessl-risk-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  risk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: git fetch --no-tags origin main
+
+      - name: Install Tessl CLI
+        uses: tesslio/setup-tessl@v2
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
+
+      - name: Install Tessl dependencies
+        run: tessl install
+
+      - name: Assess PR risk
+        id: risk
+        run: |
+          tessl change risk --base origin/main --json --output risk-results.json
+
+      # Advisory: post risk assessment as a status check comment
+      - name: Post risk assessment
+        if: always() && steps.risk.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('risk-results.json', 'utf8'));
+            const j = results.judgment;
+
+            const emoji = j.riskLevel === 'low' ? '🟢' :
+                          j.riskLevel === 'medium' ? '🟡' : '🔴';
+
+            const lines = [
+              `## ${emoji} Tessl Risk Assessment: ${j.riskLevel.toUpperCase()}`,
+              '',
+              `**Decision:** ${results.decision}`,
+              `**Confidence:** ${(j.confidence * 100).toFixed(0)}%`,
+              '',
+              `### Summary`,
+              j.summary,
+              '',
+            ];
+
+            if (j.riskFactors?.length > 0) {
+              lines.push('### Risk Factors');
+              j.riskFactors.forEach(f => lines.push(`- ${f}`));
+              lines.push('');
+            }
+
+            if (j.protectiveFactors?.length > 0) {
+              lines.push('### Protective Factors');
+              j.protectiveFactors.forEach(f => lines.push(`- ${f}`));
+              lines.push('');
+            }
+
+            if (results.requiresHumanReview) {
+              lines.push('---');
+              lines.push('⚠️ **Human review required** before merging.');
+            } else {
+              lines.push('---');
+              lines.push('✅ **Low risk** — eligible to merge without human review.');
+            }
+
+            // Find and update existing comment, or create new one
+            const marker = '<!-- tessl-risk-gate -->';
+            lines.unshift(marker);
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: lines.join('\n'),
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: lines.join('\n'),
+              });
+            }
