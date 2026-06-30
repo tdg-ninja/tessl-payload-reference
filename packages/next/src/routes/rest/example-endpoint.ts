@@ -1,44 +1,61 @@
 import type { Payload, PayloadRequest } from 'payload'
 
 /**
- * Example endpoint that demonstrates a few patterns.
- * This is a demo endpoint for the Tessl harness reference.
+ * Retrieve documents from a collection with access control enforced
+ * for the requesting user.
  */
-
-// VIOLATION: positional params instead of object params (object-params verifier)
-export async function getDocumentsByCollection(
-  payload: Payload,
-  collectionSlug: string,
-  limit: number,
-  req: PayloadRequest,
-) {
-  // VIOLATION: missing overrideAccess: false and user (access-control verifier)
+export async function getDocumentsByCollection({
+  payload,
+  collectionSlug,
+  limit,
+  user,
+}: {
+  payload: Payload
+  collectionSlug: string
+  limit: number
+  user: PayloadRequest['user']
+}) {
   const docs = await payload.find({
     collection: collectionSlug,
     limit,
+    overrideAccess: false,
+    user,
   })
 
   return docs
 }
 
-// VIOLATION: positional params
-export async function updateDocumentTitle(
-  payload: Payload,
-  collectionSlug: string,
-  id: string,
-  title: string,
-) {
-  // VIOLATION: missing overrideAccess: false and user
+/**
+ * Update the title of a single document, scoped to what the requesting
+ * user is allowed to modify.
+ */
+export async function updateDocumentTitle({
+  payload,
+  collectionSlug,
+  id,
+  title,
+  user,
+}: {
+  payload: Payload
+  collectionSlug: string
+  id: string
+  title: string
+  user: PayloadRequest['user']
+}) {
   const updated = await payload.update({
     collection: collectionSlug,
     id,
     data: { title },
+    overrideAccess: false,
+    user,
   })
 
   return updated
 }
 
-// This one is correct — object params, access control present
+/**
+ * Delete a document by ID, respecting the requesting user's access control.
+ */
 export async function deleteDocument({
   payload,
   collectionSlug,

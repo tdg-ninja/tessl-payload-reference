@@ -2,7 +2,7 @@ import type { Payload } from 'payload'
 
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { initPayloadInt } from '../__helpers/shared/initPayloadInt.js'
 
@@ -12,17 +12,24 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 describe('Example Tests', () => {
+  const createdIDs: (string | number)[] = []
+
   beforeAll(async () => {
     const initialized = await initPayloadInt(dirname)
     ;({ payload } = initialized)
+  })
+
+  afterEach(async () => {
+    for (const id of createdIDs) {
+      await payload.delete({ collection: 'posts', id })
+    }
+    createdIDs.length = 0
   })
 
   afterAll(async () => {
     await payload.destroy()
   })
 
-  // VIOLATION: creates a record via payload.create but never cleans it up
-  // (test-cleanup verifier should catch this)
   it('should create a document', async () => {
     const doc = await payload.create({
       collection: 'posts',
@@ -31,11 +38,11 @@ describe('Example Tests', () => {
       },
     })
 
+    createdIDs.push(doc.id)
+
     expect(doc.title).toEqual('Test Document')
-    // No cleanup — the record is leaked
   })
 
-  // VIOLATION: another create without cleanup
   it('should create and find a document', async () => {
     const created = await payload.create({
       collection: 'posts',
@@ -44,12 +51,13 @@ describe('Example Tests', () => {
       },
     })
 
+    createdIDs.push(created.id)
+
     const found = await payload.findByID({
       collection: 'posts',
       id: created.id,
     })
 
     expect(found.title).toEqual('Findable Document')
-    // No cleanup — the record is leaked
   })
 })
