@@ -379,6 +379,19 @@ well-maintained OSS codebases have patterns that slip through without automated 
 
 ---
 
+## Integration Diagrams
+
+See [docs/tessl-integration-diagrams.md](docs/tessl-integration-diagrams.md) for detailed
+architecture diagrams covering:
+
+1. **Input sources** — what Tessl reads from the existing codebase
+2. **PR pipeline** — the full sequence of checks on every pull request
+3. **Learning loop** — how the weekly cron feeds improvements back
+4. **Project memory** — the shared context layer connecting all tools
+5. **Check destination triage** — decision tree for routing invariants to the right tool
+
+---
+
 ## Next Steps
 
 1. **Add CI secrets** (`TESSL_TOKEN`, `ANTHROPIC_API_KEY`) to enable workflows
