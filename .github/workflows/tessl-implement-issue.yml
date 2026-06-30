@@ -44,10 +44,19 @@ jobs:
       - name: Link project to workspace
         run: tessl project link --workspace tessl-academy
 
+      - name: Write env file for cloud sandbox
+        run: |
+          printf 'GH_TOKEN=%s\n' "${{ secrets.GITHUB_TOKEN }}" > /tmp/cloud.env
+
       - name: Launch cloud agent to implement issue
         run: |
           tessl launch skill implement-issue --cloud \
             --repo ${{ github.repository }} \
             --workspace tessl-academy \
             --agent claude-code \
+            --env-file /tmp/cloud.env \
             --instructions "Implement GitHub issue #${{ steps.issue.outputs.number }}. Read the issue with gh issue view ${{ steps.issue.outputs.number }}. Open a PR when done."
+
+      - name: Clean up env file
+        if: always()
+        run: rm -f /tmp/cloud.env
