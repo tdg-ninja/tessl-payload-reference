@@ -41,9 +41,13 @@ jobs:
             echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Link project to workspace
+        run: tessl project link --workspace tessl-academy
+
       - name: Launch cloud agent to implement issue
         run: |
           tessl launch skill implement-issue --cloud \
             --repo ${{ github.repository }} \
+            --workspace tessl-academy \
             --agent claude-code \
             --instructions "Implement GitHub issue #${{ steps.issue.outputs.number }}. Read the issue with gh issue view ${{ steps.issue.outputs.number }}. Open a PR when done."
