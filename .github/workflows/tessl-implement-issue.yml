@@ -46,7 +46,7 @@ jobs:
 
       - name: Launch cloud agent to implement issue
         run: |
-          tessl launch skill implement-issue --cloud \
+          tessl launch skill tessl-academy/implement-issue#implement-issue --cloud \
             --repo ${{ github.repository }} \
             --workspace tessl-academy \
             --agent claude-code \
