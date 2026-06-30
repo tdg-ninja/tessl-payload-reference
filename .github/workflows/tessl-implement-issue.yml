@@ -1,0 +1,49 @@
+name: Implement Issue (Cloud Agent)
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to implement'
+        required: true
+        type: number
+
+jobs:
+  implement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only trigger on "agent-task" label, or manual dispatch
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.label.name == 'agent-task'
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tessl CLI
+        uses: tesslio/setup-tessl@v2
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
+
+      - name: Install Tessl dependencies
+        run: tessl install
+
+      - name: Determine issue number
+        id: issue
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "number=${{ inputs.issue_number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Launch cloud agent to implement issue
+        run: |
+          tessl launch skill implement-issue --cloud \
+            --repo ${{ github.repository }} \
+            --agent claude-code \
+            --instructions "Implement GitHub issue #${{ steps.issue.outputs.number }}. Read the issue with gh issue view ${{ steps.issue.outputs.number }}. Open a PR when done."

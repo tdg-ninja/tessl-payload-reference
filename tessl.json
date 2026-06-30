@@ -1,7 +1,11 @@
 {
   "name": "payload-reference",
   "mode": "vendored",
-  "dependencies": {},
+  "dependencies": {
+    "tessl-academy/implement-issue": {
+      "source": "file:plugins/implement-issue"
+    }
+  },
   "verify": {
     "groups": {
       "security": {
