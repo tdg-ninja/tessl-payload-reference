@@ -1,5 +1,5 @@
 {
-  "name": "tessl-academy/implement-issue",
+  "name": "tessl-fe/implement-issue",
   "version": "0.1.0",
   "description": "Read a GitHub issue and implement the requested change",
   "private": true

@@ -1,8 +1,8 @@
 {
-  "name": "payload-reference",
+  "name": "tessl-fe/payload-reference",
   "mode": "vendored",
   "dependencies": {
-    "tessl-academy/implement-issue": {
+    "tessl-fe/implement-issue": {
       "source": "file:plugins/implement-issue"
     }
   },

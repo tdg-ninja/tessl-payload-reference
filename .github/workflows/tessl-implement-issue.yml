@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Link project to workspace
-        run: tessl project link --workspace tessl-academy
+        run: tessl project link --workspace tessl-fe
 
       - name: Write env file for cloud sandbox
         run: |
@@ -52,7 +52,7 @@ jobs:
         run: |
           tessl launch skill implement-issue --cloud \
             --repo ${{ github.repository }} \
-            --workspace tessl-academy \
+            --workspace tessl-fe \
             --agent claude-code \
             --env-file /tmp/cloud.env \
             --instructions "Implement GitHub issue #${{ steps.issue.outputs.number }}. Read the issue with gh issue view ${{ steps.issue.outputs.number }}. Open a PR when done."
