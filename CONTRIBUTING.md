@@ -204,6 +204,25 @@ You can run the entire test suite using `pnpm test`. If you wish to only run e2e
 
 By default, `pnpm test:int` will only run int test against MongoDB. To run int tests against postgres, you can use `pnpm test:int:postgres`. You will have to have postgres installed on your system for this to work.
 
+### Validating a single package
+
+To lint or test one workspace package, run commands from the repository root and pass the package `name` from that package's `package.json` (for example `payload`, `@payloadcms/ui`, or `create-payload-app`).
+
+Most packages define `lint` as `eslint .` and `lint:fix` as `eslint . --fix`. Target one package instead of the full Turbo lint:
+
+```bash
+pnpm --filter payload lint
+pnpm --filter @payloadcms/ui lint:fix
+```
+
+A few packages define a real `test` script (for example `create-payload-app` and `@payloadcms/codemod` run Vitest). Run those with:
+
+```bash
+pnpm --filter create-payload-app test
+```
+
+Most Payload tests live in `test/` rather than in the package. Use `pnpm test:int <directory>` or `pnpm test:e2e` as described above. Check the package `scripts` before assuming a `test` script exists or runs real tests.
+
 ### Pull Requests
 
 For all Pull Requests, you should be extremely descriptive about both your problem and proposed solution. If there are any affected open or closed issues, please leave the issue number in your PR description.
