@@ -107,6 +107,55 @@ describe('buildActions', () => {
     )
     expect(groups).toHaveLength(0)
   })
+
+  it('should fall back to the collection slug when the resolved plural label is empty', () => {
+    const emptyString = {
+      admin: {},
+      labels: { plural: '', singular: '' },
+      slug: 'empty-string',
+    } as unknown as ClientCollectionConfig
+
+    const emptyLocale = {
+      admin: {},
+      labels: { plural: { en: '' }, singular: { en: '' } },
+      slug: 'empty-locale',
+    } as unknown as ClientCollectionConfig
+
+    const groups = buildActions({
+      adminRoute: '/admin',
+      collections: [emptyString, emptyLocale],
+      globals: [],
+      i18n,
+      permissions: {
+        collections: {
+          'empty-locale': { read: true },
+          'empty-string': { read: true },
+        },
+      } as unknown as SanitizedPermissions,
+      visibleEntities: { collections: ['empty-string', 'empty-locale'], globals: [] },
+    })
+
+    expect(groups[0].actions.map((a) => a.label)).toEqual(['empty-string', 'empty-locale'])
+  })
+
+  it('should keep a non-empty resolved collection label', () => {
+    const labeled = {
+      admin: {},
+      labels: { plural: 'Articles', singular: 'Article' },
+      slug: 'posts',
+    } as unknown as ClientCollectionConfig
+
+    const groups = buildActions({
+      adminRoute: '/admin',
+      collections: [labeled],
+      globals: [],
+      i18n,
+      permissions: { collections: { posts: { read: true } } } as unknown as SanitizedPermissions,
+      visibleEntities: { collections: ['posts'], globals: [] },
+    })
+
+    expect(groups[0].actions[0].label).toBe('Articles')
+  })
 })
 
 describe('filterActions', () => {

@@ -56,7 +56,7 @@ export function buildActions({
           ? formatAdminURL({ adminRoute, path: `/collections/${entity.slug}/create` })
           : undefined,
         href: formatAdminURL({ adminRoute, path: `/collections/${entity.slug}` }),
-        label: getTranslation(entity.labels.plural, i18n),
+        label: getTranslation(entity.labels.plural, i18n) || entity.slug,
       }
     })
 
